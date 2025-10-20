@@ -1,0 +1,13 @@
+title: Test rule
+id: ab3ea980-5f2d-4d72-a2a7-8a0c2324378f
+status: test
+description: This rule is for demonstration purposes.
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+      Image|endswith: "\\powershell.exe"
+      CommandLine|contains: "Invoke-WebRequest"
+    condition: selection
+level: high

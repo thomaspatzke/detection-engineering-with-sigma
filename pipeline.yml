@@ -1,0 +1,16 @@
+name: Placeholder example
+transformations:
+- type: value_placeholders
+  include:
+  - domain_controllers
+- type: add_condition
+  conditions:
+    index: windows
+  rule_conditions:
+  - type: logsource
+    product: windows
+vars:
+  domain_controllers:
+  - dc1
+  - dc2
+  - dc3
