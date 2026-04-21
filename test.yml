@@ -9,5 +9,7 @@ detection:
     selection:
       Image|endswith: "\\powershell.exe"
       CommandLine|contains: "Invoke-WebRequest"
-    condition: selection
+    keywords:
+    - powershell
+    condition: selection and keywords
 level: high
