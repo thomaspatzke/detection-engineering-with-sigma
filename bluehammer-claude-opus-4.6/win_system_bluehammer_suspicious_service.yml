@@ -1,0 +1,32 @@
+title: Possible BlueHammer Exploit - Service Installed from User-Writable Directory
+id: 2d7e6f5a-4b8c-7d9e-2f1a-0b3c4d5e6f7a
+status: experimental
+description: |
+    Detects installation of a new Windows service with its binary located in a user-writable
+    directory. The BlueHammer exploit creates a temporary Windows service via CreateService to
+    execute its binary as NT AUTHORITY\SYSTEM in the current user session. The service runs from
+    a user-controlled path rather than standard system directories.
+references:
+    - https://www.cyderes.com/howler-cell/windows-zero-day-bluehammer
+author: Workshop
+date: 2026-04-17
+tags:
+    - attack.privilege_escalation
+    - attack.t1543.003
+logsource:
+    product: windows
+    service: system
+detection:
+    selection:
+        EventID: 7045
+    selection_path:
+        ImagePath|contains:
+            - '\Users\'
+            - '\Temp\'
+            - '\AppData\'
+    condition: selection and selection_path
+falsepositives:
+    - Legitimate software installations from user directories
+    - Development and testing tools
+    - Some third-party management agents
+level: high

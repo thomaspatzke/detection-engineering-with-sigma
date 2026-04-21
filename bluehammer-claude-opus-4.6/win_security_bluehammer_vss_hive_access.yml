@@ -1,0 +1,34 @@
+title: Possible BlueHammer Exploit - Sensitive Registry Hive Access via Volume Shadow Copy
+id: 1c6d5e4f-3a7b-6c8d-1e0f-9a2b3c4d5e6f
+status: experimental
+description: |
+    Detects access to SAM, SYSTEM, or SECURITY registry hive files through Volume Shadow Copy
+    device paths. The BlueHammer exploit forces Microsoft Defender to create a VSS snapshot,
+    then freezes Defender using Cloud Files callbacks and oplocks. While Defender is stalled,
+    it reads the SAM, SYSTEM, and SECURITY hives from the shadow copy to extract NTLM password
+    hashes and LSA secrets for local privilege escalation to NT AUTHORITY\SYSTEM.
+    Requires object access auditing to be enabled.
+references:
+    - https://www.cyderes.com/howler-cell/windows-zero-day-bluehammer
+author: Workshop
+date: 2026-04-17
+tags:
+    - attack.credential_access
+    - attack.t1003.002
+    - attack.t1003.004
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4663
+        ObjectName|contains: 'HarddiskVolumeShadowCopy'
+        ObjectName|endswith:
+            - '\Windows\System32\Config\SAM'
+            - '\Windows\System32\Config\SYSTEM'
+            - '\Windows\System32\Config\SECURITY'
+    condition: selection
+falsepositives:
+    - Backup software accessing registry hives from shadow copies
+    - System restore operations
+level: critical

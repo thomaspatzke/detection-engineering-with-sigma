@@ -1,0 +1,30 @@
+title: Microsoft Defender Detection of BlueHammer Exploit PoC
+id: 3e8f7a6b-5c9d-8e0f-3a2b-1c4d5e6f7a8b
+status: experimental
+description: |
+    Detects Microsoft Defender identifying the BlueHammer proof-of-concept binary
+    (Exploit:Win32/DfndrPEBluHmr.BB). Note that modified versions of the exploit can bypass
+    this static signature detection as the underlying vulnerability is a design flaw in how
+    Windows components interact, not a bug in any single binary. Behavioral detection rules
+    should be used alongside this signature-based detection.
+references:
+    - https://www.cyderes.com/howler-cell/windows-zero-day-bluehammer
+author: Workshop
+date: 2026-04-17
+tags:
+    - attack.privilege_escalation
+    - attack.credential_access
+    - attack.t1003.002
+logsource:
+    product: windows
+    service: windefend
+detection:
+    selection:
+        EventID:
+            - 1116
+            - 1117
+        ThreatName|contains: 'DfndrPEBluHmr'
+    condition: selection
+falsepositives:
+    - Unlikely
+level: critical
