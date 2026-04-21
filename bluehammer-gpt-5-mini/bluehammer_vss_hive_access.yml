@@ -1,0 +1,37 @@
+title: Suspicious access to VSS shadow copy registry hives
+id: 6a1d9f8e-3b5a-4f2f-9c2e-1b2f6a0d9f3b
+status: experimental
+description: Detects processes opening Volume Shadow Copy device paths to read registry hives (SAM, SYSTEM, SECURITY). This aligns with BlueHammer-style exploitation where an attacker reads live shadow copy hives while Defender is paused.
+author: Cyderes / detection-engineer (adapted)
+date: 2026/04/21
+references:
+  - https://www.cyderes.com/howler-cell/windows-zero-day-bluehammer
+tags:
+  - attack.persistence
+  - attack.privilege-escalation
+  - attack.credential-access
+
+logsource:
+  product: windows
+  category: file_event
+
+detection:
+  selection_device:
+    EventID: 11
+    TargetFilename|contains:
+      - "HarddiskVolumeShadowCopy"
+
+  selection_hive:
+    EventID: 11
+    TargetFilename|contains:
+      - "\\Windows\\System32\\Config\\SAM"
+      - "\\Windows\\System32\\Config\\SYSTEM"
+      - "\\Windows\\System32\\Config\\SECURITY"
+
+  condition: selection_device and selection_hive
+
+level: critical
+falsepositives:
+  - Backup or imaging software that legitimately accesses VSS shadow copies
+
+falsepositives_note: "Confirm source process identity; legitimate backup and system tooling may access shadow copies."

@@ -1,0 +1,28 @@
+title: BlueHammer - Rapid admin password change followed by temporary service creation
+id: 3a7b2f40-5c6d-4e1a-9f2a-0b8d1f6a2c9e
+status: experimental
+description: Detects suspicious sequences where a low-privileged process causes a local administrator password change/reset (EventID 4723/4724) and then quickly creates or registers a service (EventID 7045). BlueHammer uses SamiChangePasswordUser to change and later restore a local admin password and CreateService to spawn a SYSTEM shell.
+author: Detection Engineering
+date: 2026-04-21
+references:
+  - https://www.cyderes.com/howler-cell/windows-zero-day-bluehammer
+tags:
+  - attack.privilege-escalation
+  - attack.persistence
+logsource:
+  product: windows
+detection:
+  selection_password_change:
+    EventID:
+      - 4723
+      - 4724
+
+  selection_service_install:
+    EventID: 7045
+
+  condition: selection_password_change and selection_service_install
+
+falsepositives:
+  - Legitimate admin password resets and service deployments by administrators or automated management tools
+
+level: high

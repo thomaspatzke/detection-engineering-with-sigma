@@ -1,0 +1,35 @@
+title: BlueHammer - Cloud Files API (cfapi.dll) usage by untrusted processes
+id: d9f3a4b2-2e4b-4f6e-88b6-2c4a7b4bbd2c
+status: experimental
+description: Detects non-standard processes loading the Cloud Files API (cfapi.dll) or creating placeholder/.lock files in user directories. BlueHammer registers a Cloud Files sync root and uses placeholder callbacks and oplocks to stall Defender; cfapi.dll usage outside known cloud providers is suspicious.
+author: Detection Engineering
+date: 2026-04-21
+references:
+  - https://www.cyderes.com/howler-cell/windows-zero-day-bluehammer
+  - https://learn.microsoft.com/windows/win32/cfapi/what-is-cloud-files
+tags:
+  - attack.privilege-escalation
+  - attack.resource-development
+logsource:
+  product: windows
+  category: image_load
+detection:
+  selection_cfapi_image_loaded:
+    EventID: 7
+    ImageLoaded|contains:
+      - "cfapi.dll"
+
+  exclude_known_cloud:
+    Image|contains:
+      - "OneDrive"
+      - "Dropbox"
+      - "BoxSync"
+      - "GoogleDrive"
+
+  condition: selection_cfapi_image_loaded and not exclude_known_cloud
+
+falsepositives:
+  - Legitimate cloud sync clients (OneDrive, Dropbox, Box, Google Drive)
+  - Software that intentionally integrates Cloud Files API
+
+level: high

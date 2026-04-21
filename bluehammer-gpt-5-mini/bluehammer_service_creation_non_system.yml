@@ -1,0 +1,29 @@
+title: Service creation by non-system user
+id: 2b9d2e4a-4f1a-4e2b-8aeb-2c9d0f4b7a4c
+status: experimental
+description: Detects Windows service installation events (EventID 4697) initiated by non-system accounts. BlueHammer uses CreateService to register a temporary service during privilege escalation.
+author: Detection Engineer
+date: 2026/04/21
+references:
+  - https://www.cyderes.com/howler-cell/windows-zero-day-bluehammer
+tags:
+  - attack.privilege-escalation
+  - attack.persistence
+
+logsource:
+  product: windows
+
+detection:
+  selection_service_install:
+    EventID: 4697
+
+  system_account:
+    SubjectUserSid: S-1-5-18
+
+  condition: selection_service_install and not system_account
+
+level: high
+falsepositives:
+  - Legitimate administrative activity by delegated admins or service deployment tools
+
+falsepositives_note: "Validate the subject account and source host; correlate with change windows or deployment tooling."

@@ -1,0 +1,32 @@
+title: BlueHammer - VSS shadow copy enumeration from non-system processes
+id: 6b2d3a18-8f74-4f3a-9b2e-e7c9b4d0a9f1
+status: experimental
+description: Detects attempts by non-system processes to enumerate or access Volume Shadow Copy device paths (HarddiskVolumeShadowCopy*). This behavior is indicative of the BlueHammer LPE technique which enumerates and reads shadow copies while Defender is stalled.
+author: Detection Engineering
+date: 2026-04-21
+references:
+  - https://www.cyderes.com/howler-cell/windows-zero-day-bluehammer
+  - https://github.com/Nightmare-Eclipse/BlueHammer
+tags:
+  - attack.privilege-escalation
+  - attack.discovery
+logsource:
+  product: windows
+detection:
+  selection_vss_file:
+    EventID: 11
+    TargetFilename|contains:
+      - "\\Device\\HarddiskVolumeShadowCopy"
+
+  selection_vss_process:
+    EventID: 1
+    CommandLine|contains:
+      - "HarddiskVolumeShadowCopy"
+
+  condition: selection_vss_file or selection_vss_process
+
+falsepositives:
+  - Backup and imaging software, system/backup maintenance tasks
+  - Legitimate VSS tooling running as SYSTEM (monitor for non-SYSTEM user processes)
+
+level: high
